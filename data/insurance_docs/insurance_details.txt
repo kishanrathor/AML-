@@ -1,0 +1,65 @@
+INSURANCE SYSTEM - COMPLETE DETAILS
+
+1.  POLICY DETAILS
+
+-   Policy Number
+-   Policy Holder Name
+-   Policy Type (Health, Life, Vehicle)
+-   Start Date
+-   End Date
+-   Premium Amount
+-   Coverage Details
+
+2.  CLAIM DETAILS
+
+-   Claim ID
+-   Policy Number
+-   Claim Type
+-   Claim Amount
+-   Date of Claim
+-   Status (Pending, Approved, Rejected)
+-   Documents Required:
+    -   ID Proof
+    -   Policy Copy
+    -   Bills/Invoices
+    -   Medical Reports (if applicable)
+
+3.  SUPPORT DETAILS
+
+-   Customer Support Email
+-   Helpline Number
+-   Working Hours
+-   Ticket ID System
+-   Issue Types:
+    -   Claim Issue
+    -   Policy Update
+    -   Payment Issue
+
+4.  USER DETAILS
+
+-   Name
+-   Email
+-   Phone Number
+-   Address
+
+5.  AGENT DETAILS
+
+-   Agent Name
+-   Agent ID
+-   Commission Details
+-   Assigned Policies
+
+6.  PAYMENT DETAILS
+
+-   Payment ID
+-   Payment Mode
+-   Transaction Status
+-   Receipt
+
+7.  SYSTEM FEATURES
+
+-   Login / Register
+-   Claim Submission
+-   Policy Management
+-   Notifications
+-   Admin Dashboard
