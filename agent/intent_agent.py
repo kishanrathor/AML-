@@ -1,27 +1,34 @@
 from core.llm import get_llm
-llm  =   get_llm()
+
+llm = get_llm()
 
 
 def detect_intent(state):
 
-    query = state["query"]
+    messages = state.get("messages", [])
 
+    # 🧠 get latest user message
+    user_query = messages[-1]["content"]
     prompt = f"""
-    You are an intent classifier for a banking AI system.
+You are an intent classifier for a banking AI system.
 
-    Classify the user's request into one of these intents:
+Classify the user's request into one of these intents:
 
-    loan
-    account
-    support
+loan   - for loan, EMI, repayment, credit queries
+account - for account opening, savings, FD, interest rate queries
+support - for net banking, cards, KYC, disputes, general help
 
-    User query: {query}
+User query: {user_query}
 
-    Return ONLY the intent word, nothing else.
-    """
+Return ONLY one word:
+loan / account / support
+"""
 
     response = llm.invoke(prompt)
 
-    state["intent"] = response.content.strip().lower()
+    intent = response.content.strip().lower()
 
-    return state
+    return {
+        "intent": intent,
+        "messages": messages   # 👈 IMPORTANT (do not lose memory)
+    }

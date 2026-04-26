@@ -1,27 +1,31 @@
-from langchain_groq import ChatGroq
-
 from rag.retriever import retrieve_context
 from rag.prompts import get_rag_prompt
-import os
-from core.llm  import get_llm
-llm  =   get_llm()
+from rag.utils import trim_conversation
+from core.llm import get_llm
+
+llm = get_llm()
 
 
-def rag_pipeline(query: str):
+def rag_pipeline(state):
 
-    # Step 1: Retrieve context
-    context = retrieve_context(query)
+    messages = state.get("messages", [])
 
-    # Step 2: Build prompt
-    prompt = get_rag_prompt(context, query)
+    user_query = messages[-1].content
 
-    # Step 3: LLM generate answer
-    response = llm.invoke(prompt)
     
-    
-    print(response.content)
+    messages = trim_conversation(messages)
 
-    return response.content
+   
+    context = retrieve_context(user_query)
 
-if __name__ == "__main__":
-    rag_pipeline("Give me the claim details which details you want for claim")
+   
+    prompt = get_rag_prompt(context, user_query)
+
+    response = llm.invoke(messages + [{"role": "system", "content": prompt}])
+
+
+    messages.append(response)
+
+    return {
+        "messages": messages
+    }

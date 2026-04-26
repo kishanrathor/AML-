@@ -1,4 +1,4 @@
-from langchain.vectorstores import Chroma
+from langchain_chroma import Chroma
 from rag.embeddings import get_embeddings
 
 DB_PATH = "vector_db"

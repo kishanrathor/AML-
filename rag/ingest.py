@@ -1,14 +1,7 @@
 from langchain_community.document_loaders import DirectoryLoader
-# from langchain_community.text_splitter import RecursiveCharacterTextSplitter
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Chroma
-
-
-# from rag.embeddings import get_embeddings
-
-
-# from rag.embeddings import get_embeddings
-from  embeddings import get_embeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_chroma import Chroma
+from embeddings import get_embeddings
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -16,8 +9,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_PATH = os.path.join(BASE_DIR, "data", "insurance_docs")
 DB_PATH = os.path.join(BASE_DIR, "vector_db")
 
-# DATA_PATH = "data/insurance_docs"
-# DB_PATH = "vector_db"
 
 def ingest_documents():
 
@@ -39,11 +30,8 @@ def ingest_documents():
         persist_directory=DB_PATH
     )
 
-    vectordb.persist()
-
     print("✅ Documents stored in vector DB")
-    
-    
+
 
 if __name__ == "__main__":
     ingest_documents()

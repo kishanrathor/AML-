@@ -3,15 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-import litellm
-from litellm.integrations.opik.opik import OpikLogger
-from opik import configure
-
-# 🔥 configure opik with env
-configure(
-    api_key=os.getenv("COMET_API_KEY"),
-    workspace=os.getenv("COMET_WORKSPACE"),
-)
-
-# 🔥 attach opik logger to litellm
-litellm.callbacks = [OpikLogger()]
+# Set Opik env vars — SDK reads these automatically, no configure() call needed
+os.environ["OPIK_API_KEY"] = os.getenv("COMET_API_KEY", "")
+os.environ["OPIK_WORKSPACE"] = os.getenv("COMET_WORKSPACE", "")
+os.environ["OPIK_PROJECT_NAME"] = os.getenv("COMET_PROJECT_NAME", "insurance-ai")

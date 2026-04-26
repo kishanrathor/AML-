@@ -1,32 +1,35 @@
 from core.llm import get_llm
 from rag.retriever import retrieve_context
-llm  =   get_llm()
+from rag.utils import trim_conversation
+
+llm = get_llm()
 
 
 def policy_agent(state):
+    messages = state.get("messages", [])
 
-    query = state["query"]
+    # 🧠 get latest user query
+    user_query = messages[-1]["content"]
 
-    docs = retrieve_context(query)
+    # 📚 RAG context
+    docs = retrieve_context(user_query)
 
-    prompt = f"""
-    You are a banking account specialist.
+    # ✂️ apply STM trimming (keep history)
+    trimmed = trim_conversation(messages)
+    print("trimmed = ", trimmed)
 
-    Help the customer with account opening, account types, savings accounts, current accounts, fixed deposits, interest rates, and account-related queries.
+    # 🧾 system prompt with RAG context
+    system_prompt = f"""You are a banking account specialist.
+Help the customer with account opening, account types, savings accounts, current accounts, fixed deposits, interest rates, and account-related queries.
+Use the context below if available.
 
-    Use the context below if available.
+Context:
+{docs}"""
 
-    Context:
-    {docs}
+    # 🤖 call LLM with full conversation history
+    llm_messages = [{"role": "system", "content": system_prompt}] + trimmed
+    response = llm.invoke(llm_messages)
 
-    Question:
-    {query}
+    messages.append({"role": "assistant", "content": response.content})
 
-    Provide accurate and helpful banking information.
-    """
-
-    response = llm.invoke(prompt)
-
-    state["response"] = response.content
-
-    return state
+    return {"messages": messages}

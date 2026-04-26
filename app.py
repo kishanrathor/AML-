@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+import core.observability  # noqa: F401 — must be first to init Opik tracing
 from graph.workflow import graph
 
 # ── Page config ───────────────────────────────────────────────────────────────
@@ -66,6 +67,7 @@ with st.sidebar:
 
     if st.button("🗑️ Clear Chat", use_container_width=True):
         st.session_state.messages = []
+        st.session_state.thread_id = str(__import__("uuid").uuid4())
         st.rerun()
 
     st.markdown("---")
@@ -79,6 +81,10 @@ st.markdown("---")
 # ── Session state ─────────────────────────────────────────────────────────────
 if "messages" not in st.session_state:
     st.session_state.messages = []
+
+if "thread_id" not in st.session_state:
+    import uuid
+    st.session_state.thread_id = str(uuid.uuid4())
 
 # ── Welcome message ───────────────────────────────────────────────────────────
 if not st.session_state.messages:
@@ -106,34 +112,54 @@ for msg in st.session_state.messages:
 
 # ── Chat input ────────────────────────────────────────────────────────────────
 if prompt := st.chat_input("Ask your banking question here..."):
+
+    # show user message
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
         with st.spinner("Processing your query..."):
-            result = graph.invoke({
-                "query": prompt,
-                "intent": "",
-                "response": ""
-            })
 
+            config = {
+                "configurable": {
+                    "thread_id": st.session_state.thread_id
+                }
+            }
+
+            result = graph.invoke(
+                {
+                    "messages": st.session_state.messages
+                },
+                config
+            )
+
+        # 🧠 extract response
+        response = result["messages"][-1]["content"]
+
+        # 🧠 extract intent (if exists)
         intent = result.get("intent", "support").strip().lower()
-        # Normalize intent in case LLM returns extra words
+
+        # normalize intent
         for key in ["loan", "account", "support"]:
             if key in intent:
                 intent = key
                 break
 
-        response = result.get("response", "Sorry, I couldn't process your request.")
-        label = {"loan": "💳 Loan", "account": "🏦 Account", "support": "🛎 Support"}.get(intent, intent.title())
+        label = {
+            "loan": "💳 Loan",
+            "account": "🏦 Account",
+            "support": "🛎 Support"
+        }.get(intent, intent.title())
 
         st.markdown(
             f'<span class="intent-badge badge-{intent}">{label}</span>',
             unsafe_allow_html=True,
         )
+
         st.markdown(response)
 
+    # save assistant response
     st.session_state.messages.append({
         "role": "assistant",
         "content": response,

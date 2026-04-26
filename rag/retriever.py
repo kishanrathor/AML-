@@ -13,7 +13,7 @@ def retrieve_context(query: str):
 
     retriever = get_retriever()
 
-    docs = retriever.get_relevant_documents(query)
+    docs = retriever.invoke(query)
 
     context = "\n\n".join([doc.page_content for doc in docs])
 

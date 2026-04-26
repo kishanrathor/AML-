@@ -1,31 +1,35 @@
 from core.llm import get_llm
 from rag.retriever import retrieve_context
+from rag.utils import trim_conversation
 
-llm  =   get_llm()
+llm = get_llm()
+
+
 def support_agent(state):
+    messages = state.get("messages", [])
 
-    query = state["query"]
+    # 🧠 get latest user query
+    user_query = messages[-1]["content"]
 
-    docs = retrieve_context(query)
+    # 📚 RAG context
+    docs = retrieve_context(user_query)
 
-    prompt = f"""
-    You are a helpful banking customer support assistant.
+    # ✂️ apply STM trimming (keep history)
+    trimmed = trim_conversation(messages)
+    print("trimmed = ", trimmed)
 
-    Help customers with general banking queries such as net banking, card issues, transaction disputes, KYC, branch/ATM locator, and general banking services.
+    # 🧾 system prompt with RAG context
+    system_prompt = f"""You are a helpful banking customer support assistant.
+Help customers with general banking queries such as net banking, card issues, transaction disputes, KYC, branch/ATM locator, and general banking services.
+Use the knowledge below to answer. Be polite, clear, and concise.
 
-    Use the knowledge below to answer.
+Context:
+{docs}"""
 
-    Context:
-    {docs}
+    # 🤖 call LLM with full conversation history
+    llm_messages = [{"role": "system", "content": system_prompt}] + trimmed
+    response = llm.invoke(llm_messages)
 
-    Question:
-    {query}
+    messages.append({"role": "assistant", "content": response.content})
 
-    Be polite, clear, and concise.
-    """
-
-    response = llm.invoke(prompt)
-
-    state["response"] = response.content
-
-    return state
+    return {"messages": messages}
