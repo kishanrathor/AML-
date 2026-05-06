@@ -3,12 +3,11 @@ def route(state):
     intent = state["intent"]
 
     routes = {
-        "loan": "claim_agent",
-        "account": "policy_agent",
-        "support": "support_agent"
+        "aml":     "claim_agent",    # AML alerts & transaction monitoring
+        "account": "policy_agent",   # KYC, account management
+        "support": "support_agent",  # General banking support
     }
 
-    # fallback: partial match
     for key in routes:
         if key in intent:
             return routes[key]

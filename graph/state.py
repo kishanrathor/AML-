@@ -1,8 +1,9 @@
-from typing import List, TypedDict
-from langchain_core.messages import BaseMessage
+from typing import Annotated, List
+from langgraph.graph.message import add_messages
+from typing_extensions import TypedDict
 
 
 class AgentState(TypedDict):
-    messages: List[BaseMessage]   # 👈 MAIN memory
-    intent: str                   # routing
-    context: str                  # RAG context (optional)
+    messages: Annotated[List[dict], add_messages]  # LangGraph manages accumulation
+    intent: str
+    context: str

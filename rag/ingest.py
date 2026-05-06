@@ -30,7 +30,7 @@ def ingest_documents():
         persist_directory=DB_PATH
     )
 
-    print("✅ Documents stored in vector DB")
+    print(" Documents stored in vector DB")
 
 
 if __name__ == "__main__":

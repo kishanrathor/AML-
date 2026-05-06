@@ -16,21 +16,21 @@ load_dotenv()
 
 DB_URI = os.getenv("DATABASE_URL")
 
-# ── Connection pool (survives Streamlit reruns) ───────────────────────────────
+# Connection pool (survives Streamlit reruns) 
 pool = ConnectionPool(
     conninfo=DB_URI,
     max_size=10,
     kwargs={"autocommit": True},
 )
 
-# ── Setup tables once ─────────────────────────────────────────────────────────
+# Setup tables once
 with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
     checkpointer.setup()
 
-# ── Checkpointer using pool ───────────────────────────────────────────────────
+# Checkpointer using pool
 checkpointer = PostgresSaver(pool)
 
-# ── Build graph ───────────────────────────────────────────────────────────────
+#Build graph
 workflow = StateGraph(AgentState)
 
 workflow.add_node("intent_agent", detect_intent)
@@ -54,5 +54,5 @@ workflow.add_edge("policy_agent", END)
 workflow.add_edge("claim_agent", END)
 workflow.add_edge("support_agent", END)
 
-# ── Compile ───────────────────────────────────────────────────────────────────
+# Compile 
 graph = workflow.compile(checkpointer=checkpointer)

@@ -15,6 +15,7 @@ def retrieve_context(query: str):
 
     docs = retriever.invoke(query)
 
+
     context = "\n\n".join([doc.page_content for doc in docs])
 
     return context
